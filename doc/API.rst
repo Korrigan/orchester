@@ -19,14 +19,14 @@ informations suivantes:
 
 - Le type de composant qui se trouve a l'autre bout
 
-  .. code-block:: javascript
+.. code-block:: javascript
      {
        'service': 'node'
      }
 
 - La version du composant et de son API
 
-  .. code-block:: javascript
+.. code-block:: javascript
      {
        'version': '0.0.1',
        'api_version': '0.1.1'
@@ -38,7 +38,7 @@ informations suivantes:
 
   Cela offre par ailleurs la possibilite de desactiver des features.
 
-  .. code-block:: javascript
+.. code-block:: javascript
      {
        'capabilities': [
          'lb',
@@ -48,7 +48,7 @@ informations suivantes:
 
 Ce qui donne au final:
 
-  .. code-block:: javascript
+.. code-block:: javascript
      {
        'service': 'node',
        'version': '0.0.1',
