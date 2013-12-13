@@ -20,9 +20,10 @@ informations suivantes:
 - Le type de composant qui se trouve a l'autre bout
 
 .. code:: js
-     {
+   {
        'service': 'node'
-     }
+   }
+
 
 - La version du composant et de son API
 
