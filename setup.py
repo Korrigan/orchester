@@ -16,6 +16,7 @@ setup(name='orchester',
           'Programming Language :: Python :: 2.7',
       ],
       packages=['orchester'],
+      test_suite='orchester.tests',
       install_requires=[
           'flask',
       ],
