@@ -19,7 +19,7 @@ informations suivantes:
 
 - Le type de composant qui se trouve a l'autre bout
 
-.. code-block:: javascript
+.. code:: js
      {
        'service': 'node'
      }
