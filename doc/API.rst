@@ -19,20 +19,18 @@ informations suivantes:
 
 - Le type de composant qui se trouve a l'autre bout
 
-  ```javascript
-  {
-      'service': 'node'
-  }
-  ```
+  .. code-block:: javascript
+     {
+       'service': 'node'
+     }
 
 - La version du composant et de son API
 
-  ```javascript
-  {
-      'version': '0.0.1',
-      'api_version': '0.1.1'
-  }
-  ```
+  .. code-block:: javascript
+     {
+       'version': '0.0.1',
+       'api_version': '0.1.1'
+     }
 
 - Les capacites du composant
   Ce sont les fonctionalites disponible pour ce composant, par exemple
@@ -40,26 +38,24 @@ informations suivantes:
 
   Cela offre par ailleurs la possibilite de desactiver des features.
 
-  ```javascript
-  {
-      'capabilities': [
-          'lb',
-	  'instance'
-      ]
-  }
-  ```
-
+  .. code-block:: javascript
+     {
+       'capabilities': [
+         'lb',
+	 'instance'
+       ]
+     }
 
 Ce qui donne au final:
 
-```javascript
-  {
-      'service': 'node',
-      'version': '0.0.1',
-      'api_version': '0.1.1'
-      'capabilities': [
-          'lb',
-	  'instance'
-      ]
-  }
-```
+  .. code-block:: javascript
+     {
+       'service': 'node',
+       'version': '0.0.1',
+       'api_version': '0.1.1'
+       'capabilities': [
+         'lb',
+         'instance'
+       ]
+     }
+
