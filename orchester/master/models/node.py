@@ -21,6 +21,8 @@ class Node(db.Document):
         """
         plugin = 'docker'
         klass = get_node_plugin_class(plugin)
+        if not klass:
+            raise "toto"
         data = {
             'plugin_name': plugin,
             'private_key': app.private_key,
