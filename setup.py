@@ -19,5 +19,6 @@ setup(name='orchester',
       test_suite='orchester.tests',
       install_requires=[
           'flask',
+          'flask-mongoengine',
       ],
   )
