@@ -17,12 +17,11 @@ Root URL
 L'url '/' devrait fournir (pour l'ensemble des composants), les
 informations suivantes:
 
-- Le type de composant qui se trouve a l'autre bout
-
-.. code::
-   {
-       'service': 'node'
-   }
+- Le type de composant qui se trouve a l'autre bout::
+    
+    {
+        'service': 'node'
+    }
 
 
 - La version du composant et de son API
