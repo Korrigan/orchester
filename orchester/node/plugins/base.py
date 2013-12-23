@@ -3,10 +3,10 @@ This module implements base plugins for orchester-node
 
 """
 
-from orchester.plugins.base import get_class
+from orchester.plugins import get_plugin_class
 
 
-class WorkerAbstractBasePlugin(get_class()):
+class WorkerAbstractBasePlugin(get_plugin_class('base')):
     """
     This class is the base class for worker node plugins
     Every node plugins should inherits of this class
