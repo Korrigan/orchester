@@ -5,9 +5,11 @@ plugin modules.
 
 """
 
-ORCHESTER_MODULE_PATH = 'orchester.plugins'
+ORCHESTER_PLUGINS_PATH = 'orchester.plugins'
+ORCHESTER_NODE_PLUGINS_PATH = 'orchester.node.plugins'
 
-def get_plugin_class(name):
+
+def get_plugin_class(name, path=ORCHESTER_PLUGINS_PATH):
     """
     Returns the class of an orchester plugin by its name.
     Returns None if not found.
@@ -17,7 +19,7 @@ def get_plugin_class(name):
     """
     import importlib
 
-    mod_name = "%s.%s" % (ORCHESTER_MODULE_PATH, name)
+    mod_name = "%s.%s" % (path, name)
     try:
         mod = importlib.import_module(mod_name)
     except:
@@ -26,7 +28,7 @@ def get_plugin_class(name):
     return mod.get_class()
 
 
-def get_plugin_instance(name, *args, **kwargs):
+def get_plugin_instance(name, path=ORCHESTER_PLUGINS_PATH, *args, **kwargs):
     """
     Same as get_plugin_class but returns an actual instance of the
     plugin instead of his class.
@@ -41,7 +43,7 @@ def get_plugin_instance(name, *args, **kwargs):
         return None
 
 
-def get_plugin_version(name):
+def get_plugin_version(name, path=ORCHESTER_PLUGINS_PATH):
     """
     This method returns the version of the plugin _name_ by calling its
     smethod get_version().
@@ -55,3 +57,17 @@ def get_plugin_version(name):
     else:
         return 0
  
+
+def get_node_plugin_class(name):
+    """A simple path override for get_plugin_class"""
+    return get_plugin_class(name, ORCHESTER_NODE_PLUGINS_PATH)
+
+
+def get_node_plugin_instance(name, *args, **kwargs):
+    """A simple path override for get_plugin_instance"""
+    return get_plugin_instance(name, ORCHESTER_NODE_PLUGINS_PATH, *args, **kwargs)
+
+
+def get_node_plugin_version(name):
+    """A simple path override for get_plugin_version"""
+    return get_plugin_version(name, ORCHESTER_NODE_PLUGINS_PATH)
