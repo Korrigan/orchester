@@ -24,21 +24,19 @@ informations suivantes:
     }
 
 
-- La version du composant et de son API
-
-.. code-block:: javascript
-     {
-       'version': '0.0.1',
-       'api_version': '0.1.1'
-     }
+- La version du composant et de son API::
+    
+    {
+      'version': '0.0.1',
+      'api_version': '0.1.1'
+    }
 
 - Les capacites du composant
   Ce sont les fonctionalites disponible pour ce composant, par exemple
   un node n'est pas forcement capable de deployer un LB ou une instance.
 
-  Cela offre par ailleurs la possibilite de desactiver des features.
-
-.. code-block:: javascript
+  Cela offre par ailleurs la possibilite de desactiver des features.::
+     
      {
        'capabilities': [
          'lb',
@@ -46,9 +44,8 @@ informations suivantes:
        ]
      }
 
-Ce qui donne au final:
-
-.. code-block:: javascript
+Ce qui donne au final::
+    
      {
        'service': 'node',
        'version': '0.0.1',
