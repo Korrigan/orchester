@@ -9,4 +9,28 @@ from .api import index
 
 
 app = Flask('orchester.master')
+db = MongoEngine(app)
 app.register_blueprint(index)
+
+class Master(object):
+    """
+    This class is the main class of orchester-master.
+    It deals with all scaling and worker repartition features
+
+    """
+
+    def get_node(self):
+        """
+        Returns a host object depending of load metrics
+
+        """
+        pass
+
+    def deploy(self, app):
+        """
+        Deploy an application to one or more nodes
+
+        """
+        for i in range(0, app.min_workers):
+            node = self.get_node()
+            node.deploy(app)
