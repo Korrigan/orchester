@@ -11,6 +11,9 @@ class AbstractBasePlugin(object):
 
 
     """
+    def __init__(self, *args, **kwargs):
+        for key in kwargs.keys():
+            setattr(self, key, kwargs[key])
 
     @classmethod
     def get_name(kls):
