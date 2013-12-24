@@ -20,17 +20,17 @@ class Application(db.Document):
     min_workers = db.IntField()
     max_workers = db.IntField()
     env_vars = db.DictField()
-    workers = db.ListField(db.EmbeddedDocumentField(Worker))
+    workers = db.ListField(db.ReferenceField(Worker))
 
     @property
     def private_key(self):
         """Read and returns the private key of the app"""
-        return "toto%d" % self.id
+        return "toto"
 
     @property
     def public_key(self):
         """Read and returns the private key of the app"""
-        return "tata%d" % self.id
+        return "tata"
 
     def gen_rsa_keypair(self):
         """
