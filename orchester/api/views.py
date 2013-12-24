@@ -4,7 +4,7 @@ Misc utils views for orchester API
 """
 
 from flask import jsonify
-from flask import MethodView
+from flask.views import MethodView
 
 from orchester.api import api_version
 
@@ -60,12 +60,14 @@ class APIListCreateView(MethodView):
 
     def get(self):
         """Returns the application list and count"""
+        qs = self.get_queryset()
         data = {
             self.data_list_key: [],
-            'count': Application.objects.count(),
+            'count': qs.count()
         }
-        for app in Application.objects:
-            data[self.data_list_key].append(url_for('.app_detail', app_id=app._id))
+        for obj in qs:
+            data[self.data_list_key].append(url_for(self.view_name,
+                                                    **{self.view_arg_name: obj._id}))
         return jsonify(data)
 
 

@@ -9,7 +9,6 @@ from flask import url_for, jsonify
 
 from orchester.api.views import APIDetailView, APIListCreateView
 
-from orchester.master import master
 from orchester.master.models.application import Application
 
 application = Blueprint('application', __name__)
@@ -54,8 +53,17 @@ class AppView(APIDetailView, AppViewMixin):
     DELETE deletes the application
 
     """
-    display_fields = required_fields + optional_fields + [('id', '_id'),]
+    display_fields = [
+        ('id', '_id'),
+        'code_tag',
+        'max_workers',
+        'env_vars',
+        'domain_name',
+        'code_type',
+        'code_url',
+        'min_workers'
+    ]
 
 
-application.add_url_rule('/', AppIndexView.as_view('index'))
-application.add_url_rule('/<app_id>', AppView.as_view('app_detail'))
+application.add_url_rule('/', 'index', AppIndexView.as_view('index'))
+application.add_url_rule('/<app_id>', 'app_detail', AppView.as_view('app_detail'))

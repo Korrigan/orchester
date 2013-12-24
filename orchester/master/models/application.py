@@ -20,7 +20,7 @@ class Application(db.Document):
     min_workers = db.IntField()
     max_workers = db.IntField()
     env_vars = db.DictField()
-    workers = db.ListField(db.ReferenceField(Worker))
+#    workers = db.ListField(db.ReferenceField(Worker))
 
     @property
     def private_key(self):
