@@ -6,7 +6,7 @@ This module is the entry point of the orchester-master daemon
 from flask import Flask
 from flask.ext.mongoengine import MongoEngine
 
-from .api import index
+from .api import register
 
 
 app = Flask('orchester.master')
@@ -14,7 +14,9 @@ app.config['MONGODB_SETTINGS'] = {
     'DB': 'orchester',
     }
 db = MongoEngine(app)
-app.register_blueprint(index)
+
+register(app)
+
 
 class Master(object):
     """
@@ -29,7 +31,6 @@ class Master(object):
 
         """
         return Node.objects.first()
-
 
     def deploy(self, app):
         """
