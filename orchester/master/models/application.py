@@ -20,7 +20,17 @@ class Application(db.Document):
     min_workers = db.IntField()
     max_workers = db.IntField()
     env_vars = db.DictField()
-#    workers = db.ListField(db.ReferenceField(Worker))
+    workers = db.ListField(db.ReferenceField('Worker'))
+
+    @property
+    def cleaned_id(self):
+        """
+        Returns the internal id as a string
+
+        TODO: this should be in a mixin
+
+        """
+        return str(self.id)
 
     @property
     def private_key(self):
