@@ -19,7 +19,7 @@ class AppViewMixin(object):
     This class contains view parameters for application view classes
 
     """
-    view_name = '.app_detail'
+    view_name = 'application.app_detail'
     view_arg_name = 'app_id'
     model = Application
     required_fields = [
@@ -35,7 +35,7 @@ class AppViewMixin(object):
     ]
 
 
-class AppIndexView(APIListCreateView, AppViewMixin):
+class AppIndexView(AppViewMixin, APIListCreateView):
     """
     /app/ endpoint
     GET returns the application list
@@ -54,7 +54,7 @@ class AppView(APIDetailView, AppViewMixin):
 
     """
     display_fields = [
-        ('id', '_id'),
+        ('id', 'cleaned_id'),
         'code_tag',
         'max_workers',
         'env_vars',
