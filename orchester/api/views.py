@@ -76,7 +76,37 @@ def check_field_key(k, list):
     return (None, None)
 
 
-class APIListCreateView(MethodView):
+class APIObjectFromJsonMixin(object):
+    """
+    This class helps to deal with objects and json data
+
+    """
+
+    def get_object_kwargs(self, data):
+        """
+        Returns a dict for object creation based on json decoded data
+        This method abort(400) if a required field is not here of if
+        an unexpected field is found
+
+        """
+        kw = {}
+        allowed_fields = self.required_fields + self.optional_fields
+        for (k, v) in data.iteritems():
+            (key, obj_key) = check_field_key(k, allowed_fields)
+            if not key:
+                print "invalid field %s" % k
+                abort(400)
+            kw[obj_key] = v
+        for k in self.required_fields:
+            (key, obj_key) = get_field_keys(k)
+            if not obj_key in kw:
+                print "missing field %s" % k
+                abort(400)
+        return kw
+
+
+
+class APIListCreateView(MethodView, APIObjectFromJsonMixin):
     """
     Helper class to implement API list/create view
     GET will return an object with a list and a count of object
@@ -132,26 +162,14 @@ class APIListCreateView(MethodView):
         from flask import request
 
         data = json.loads(request.data)
-        kw = {}
-        allowed_fields = self.required_fields + self.optional_fields
-        for (k, v) in data.iteritems():
-            (key, obj_key) = check_field_key(k, allowed_fields)
-            if not key:
-                print "invaild field %s" % k
-                abort(400)
-            kw[obj_key] = v
-        for k in self.required_fields:
-            (key, obj_key) = get_field_keys(k)
-            if not obj_key in kw:
-                print "missing field %s" % k
-                abort(400)
+        kw = self.get_object_kwargs(data)
         obj = self.model(**kw)
         obj.save()
         return api_redirect(url_for(self.view_name, _external=True,
                                     **{self.view_arg_name: obj.id}))
 
 
-class APIDetailView(MethodView):
+class APIDetailView(MethodView, APIObjectFromJsonMixin):
     """
     Helper class for implementing API detail view
     You must subclass it and add the following attributes
@@ -170,9 +188,6 @@ class APIDetailView(MethodView):
 
     """
     methods = ['GET', 'PUT', 'DELETE']
-    display_fields = []
-    required_fields = []
-    optional_fields = []
 
     def get_object(self, obj_id):
         """Returns the model object filtering by kwargs"""
@@ -212,6 +227,24 @@ class APIDetailView(MethodView):
         data = self.get_object_data(obj)
         data['url'] = self.get_object_url(obj)
         return jsonify(data)
+
+    def put(self, **kwargs):
+        """
+        Like the POST handle but updates the object with given ID
+
+        """
+        from flask import request
+
+        data = json.loads(request.data)
+        kw = self.get_object_kwargs(data)
+        obj_id = kwargs[self.view_arg_name]
+        obj = self.get_object(obj_id)
+        for (k, v) in kw.iteritems():
+            setattr(obj, k, v)
+        obj.save()
+        return api_redirect(url_for(self.view_name, _external=True,
+                                    **{self.view_arg_name: obj.id}))
+
 
     def delete(self, **kwargs):
         """
