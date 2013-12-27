@@ -4,29 +4,24 @@ This module is the entry point of the orchester-node daemon
 """
 
 from flask import Flask
-from flask import jsonify
 
-version = '0.0.1'
-api_version = '0.0.1'
+from .api import index
+from .api.worker import worker
+
 
 app = Flask('orchester.node')
+app.register_blueprint(index)
+app.register_blueprint(worker, url_prefix='/worker')
 
-
-@app.route('/')
-def index():
+class Node(object):
     """
-    The API root endpoint.
-    Provides information about the node and its capacities.
+    Node class manages the current workers
 
     """
-    data = {
-        'service': 'node',
-        'capabilities': [
-            'instance',
-            'lb',
-        ],
-        'version': version,
-        'api_version': api_version,
-    }
-    return jsonify(data)
- 
+    workers = []
+
+    def __init__(self, *args, **kwargs):
+        import socket
+        self.hostname = socket.gethostname()
+
+node = Node()
