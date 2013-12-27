@@ -6,16 +6,23 @@ This module is the entry point of the orchester-master daemon
 from flask import Flask
 from flask.ext.mongoengine import MongoEngine
 
-from .api import register
-
 
 app = Flask('orchester.master')
-app.config['MONGODB_SETTINGS'] = {
-    'DB': 'orchester',
-    }
-db = MongoEngine(app)
+db = MongoEngine()
 
-register(app)
+
+def setup(db_name='orchester'):
+    """
+    This function configures database and register urls
+
+    """
+    from .api import register
+
+    app.config['MONGODB_SETTINGS'] = {
+        'DB': db_name,
+    }
+    db.init_app(app)
+    register(app)
 
 
 class Master(object):
