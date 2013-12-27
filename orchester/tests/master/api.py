@@ -69,8 +69,7 @@ class AppTestMixin(object):
            }
         for (k, v) in kwargs.iteritems():
             req[k] = v
-        with master.app.test_request_context():
-            return self.app.post('/app/', content_type='application/json', data=json.dumps(req))
+        return self.app.post('/app/', content_type='application/json', data=json.dumps(req))
 
 
 class AppCreateTestCase(MasterAPITestCase, AppTestMixin):
@@ -83,6 +82,15 @@ class AppCreateTestCase(MasterAPITestCase, AppTestMixin):
         rv = self.create_app()
         assert rv.status_code == 302 or rv.status_code == 301
         json.loads(rv.data)
+
+    def test_app_create_invalid(self):
+        req = {'code_type': 'python',
+               'code_tag': 'test',
+               'max_workers': 0,
+           }
+        rv = self.app.post('/app/', content_type='application/json', data=json.dumps(req))
+        assert rv.status_code == 400
+
 
 class AppListTestCase(MasterAPITestCase, AppTestMixin):
     """
@@ -122,7 +130,28 @@ class AppDetailTesstCase(MasterAPITestCase, AppTestMixin):
         assert data.has_key('env_vars')
 
     def test_app_update(self):
-        pass
+        rv = self.create_app()
+        data = json.loads(rv.data)
+        req = {'domain_name': 'example.com',
+               'code_type': 'perl',
+               'code_tag': 'test',
+               'code_url': 'https://example.com/repo.git',
+               'min_workers': 0,
+               'max_workers': 0,
+           }
+        rv = self.app.put(data['url'], data=json.dumps(req))
+        rv = self.app.get(data['url'])
+        data = json.loads(rv.data)
+        assert data['code_type'] == 'perl'
+
+    def test_app_update_invalid(self):
+        rv = self.create_app()
+        data = json.loads(rv.data)
+        req = {'code_tag': 'test',
+               'max_workers': 0,
+           }
+        rv = self.app.put(data['url'], data=json.dumps(req))
+        assert rv.status_code == 400
 
     def test_app_delete(self):
         rv = self.create_app()
