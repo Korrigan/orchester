@@ -190,7 +190,7 @@ class APIDetailView(MethodView):
         for f in self.display_fields:
             (k, obj_k) = get_field_keys(f)
             v = getattr(obj, obj_k)
-            if v:
+            if v != None:
                 data[k] = v
         return data
 

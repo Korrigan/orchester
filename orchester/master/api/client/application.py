@@ -61,7 +61,8 @@ class AppView(APIDetailView, AppViewMixin):
         'domain_name',
         'code_type',
         'code_url',
-        'min_workers'
+        'min_workers',
+        'public_key',
     ]
 
 
