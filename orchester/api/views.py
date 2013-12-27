@@ -25,6 +25,18 @@ def index(service, version, capabilities=[], api_version=api_version):
     return jsonify(data)
 
 
+def api_redirect(url):
+    """
+    This function uses the flask.redirect function and returns a 302
+    response with a json body
+
+    """
+    from flask import make_response
+
+    return make_response((jsonify({'url': url}),
+                          302, {"Location": url}))
+
+
 def get_field_keys(k):
     """
     This function takes either a tuple or a string as parameter and returns
@@ -106,7 +118,7 @@ class APIListCreateView(MethodView):
             'count': qs.count()
         }
         for obj in qs:
-            data[self.data_list_key].append(url_for(self.view_name,
+            data[self.data_list_key].append(url_for(self.view_name, _external=True,
                                                     **{self.view_arg_name: obj.id}))
         return jsonify(data)
 
@@ -117,17 +129,16 @@ class APIListCreateView(MethodView):
         created object.
 
         """
-        from flask import request, redirect
+        from flask import request
 
         data = json.loads(request.data)
         kw = {}
         allowed_fields = self.required_fields + self.optional_fields
         for (k, v) in data.iteritems():
-            print k in allowed_fields
             (key, obj_key) = check_field_key(k, allowed_fields)
             if not key:
                 print "invaild field %s" % k
-                abort(400) # to fix
+                abort(400)
             kw[obj_key] = v
         for k in self.required_fields:
             (key, obj_key) = get_field_keys(k)
@@ -136,8 +147,8 @@ class APIListCreateView(MethodView):
                 abort(400)
         obj = self.model(**kw)
         obj.save()
-        return redirect(url_for(self.view_name,
-                                **{self.view_arg_name: obj.id}))
+        return api_redirect(url_for(self.view_name, _external=True,
+                                    **{self.view_arg_name: obj.id}))
 
 
 class APIDetailView(MethodView):
@@ -188,8 +199,7 @@ class APIDetailView(MethodView):
         Returns the object URL based on view_name attr
 
         """
-        from flask import url_for
-        return url_for(self.view_name, **{self.view_arg_name: obj.id})
+        return url_for(self.view_name, _external=True, **{self.view_arg_name: obj.id})
 
     def get(self, **kwargs):
         """
@@ -211,3 +221,4 @@ class APIDetailView(MethodView):
         obj_id = kwargs[self.view_arg_name]
         obj = self.get_object(obj_id)
         obj.delete()
+        return jsonify({"status": "OK"})
