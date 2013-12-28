@@ -8,7 +8,7 @@ from orchester.master import db
 from .node import Node
 
 
-class Worker(db.EmbeddedDocument):
+class Worker(db.Document):
     """
     The sole use case of this class (in mongo-related terms) is to be used in
     Application object.
