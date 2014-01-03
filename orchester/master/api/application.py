@@ -70,7 +70,7 @@ class AppView(APIDetailUpdateDeleteView, AppViewMixin):
         This method overloads get_object_data to add worker list by urls
 
         """
-        data = super(AppView, self).get_object(obj)
+        data = super(AppView, self).get_object_data(obj)
         data['workers'] = []
         for w in obj.workers:
             data['workers'].append(url_for('worker.wkr_detail', _external=True,
