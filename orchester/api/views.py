@@ -76,11 +76,46 @@ def check_field_key(k, list):
     return (None, None)
 
 
-class APIObjectFromJsonMixin(object):
+class APIModelViewMixin(object):
     """
-    This class helps to deal with objects and json data
+    A simple Mixin to provide model object related methods
 
     """
+
+    def get_queryset(self):
+        """
+        Returns the queryset for the view
+        By default return all objects using self.model
+
+        """
+        return self.model.objects
+
+    def get_object(self, obj_id):
+        """Returns the model object filtering by kwargs"""
+        if not self.model:
+            abort(404)
+        return self.model.objects.get_or_404(id=obj_id)
+
+    def get_object_url(self, obj):
+        """
+        Returns the object URL based on view_name attr
+
+        """
+        return url_for(self.view_name, _external=True, **{self.view_arg_name: obj.id})
+
+    def get_object_data(self, obj):
+        """
+        Returns the object data as a python dict
+        This method looks for a display_fields attribute
+
+        """
+        data = {}
+        for f in self.display_fields:
+            (k, obj_k) = get_field_keys(f)
+            v = getattr(obj, obj_k)
+            if v != None:
+                data[k] = v
+        return data
 
     def get_object_kwargs(self, data):
         """
@@ -105,7 +140,7 @@ class APIObjectFromJsonMixin(object):
         return kw
 
 
-class APIListView(MethodView):
+class APIListView(MethodView, APIModelViewMixin):
     """
     Helper class to implement API list view
     GET will return an object with a list and a count of object
@@ -118,15 +153,6 @@ class APIListView(MethodView):
 
     """
     methods = ['GET',]
-    data_list_key = 'list'
-
-    def get_queryset(self):
-        """
-        Returns the queryset for the view
-        By default return all objects using self.model
-
-        """
-        return self.model.objects
 
     def get(self):
         """Returns the application list and count"""
@@ -141,7 +167,7 @@ class APIListView(MethodView):
         return jsonify(data)
 
 
-class APICreateView(MethodView, APIObjectFromJsonMixin):
+class APICreateView(MethodView, APIModelViewMixin):
     """
     Helper class to implement API create view
     POST will create an object
@@ -188,25 +214,6 @@ class APIListCreateView(APIListView, APICreateView):
     methods = ['GET', 'POST']
 
 
-class APIModelViewMixin(object):
-    """
-    A simple Mixin to provide model object related methods
-
-    """
-    def get_object(self, obj_id):
-        """Returns the model object filtering by kwargs"""
-        if not self.model:
-            abort(404)
-        return self.model.objects.get_or_404(id=obj_id)
-
-    def get_object_url(self, obj):
-        """
-        Returns the object URL based on view_name attr
-
-        """
-        return url_for(self.view_name, _external=True, **{self.view_arg_name: obj.id})
-
-
 class APIDetailView(MethodView, APIModelViewMixin):
     """
     Helper class for implementing API detail view
@@ -221,20 +228,6 @@ class APIDetailView(MethodView, APIModelViewMixin):
     """
     methods = ['GET',]
 
-    def get_object_data(self, obj):
-        """
-        Returns the object data as a python dict
-        This method looks for a display_fields attribute
-
-        """
-        data = {}
-        for f in self.display_fields:
-            (k, obj_k) = get_field_keys(f)
-            v = getattr(obj, obj_k)
-            if v != None:
-                data[k] = v
-        return data
-
     def get(self, **kwargs):
         """
         This method is the GET endpoint
@@ -248,7 +241,7 @@ class APIDetailView(MethodView, APIModelViewMixin):
         return jsonify(data)
 
 
-class APIUpdateView(MethodView, APIModelViewMixin, APIObjectFromJsonMixin):
+class APIUpdateView(MethodView, APIModelViewMixin):
     """
     Helper class providing a way to update objects
     PUT will updated the object and redirect to it's url
@@ -337,7 +330,7 @@ class APIUpdateDeleteView(APIUpdateView, APIDeleteView):
     methods = ['DELETE', 'PUT']
 
 
-class APIDetailUpdateDeleteView(APIDetailView, APIUpdateView, APIDetailView):
+class APIDetailUpdateDeleteView(APIDetailView, APIUpdateView, APIDeleteView):
     """
     Helper class providing all model related endpoints:
     GET shows the object detailed info
@@ -347,4 +340,4 @@ class APIDetailUpdateDeleteView(APIDetailView, APIUpdateView, APIDetailView):
     Combines APIDetailView, APIUpdateView, and APIDeleteView classes
 
     """
-    methods = ['']
+    methods = ['GET', 'PUT', 'DELETE']
