@@ -105,32 +105,20 @@ class APIObjectFromJsonMixin(object):
         return kw
 
 
-
-class APIListCreateView(MethodView, APIObjectFromJsonMixin):
+class APIListView(MethodView):
     """
-    Helper class to implement API list/create view
+    Helper class to implement API list view
     GET will return an object with a list and a count of object
-    POST will create an object
 
     You must subclass it and add the following attributes:
-     - required_fields: The required fields to POST
-     - optional_fields: The optional fields to POST
      - view_name: the name of a view to generate reverse urls
      - view_arg_name: the of the view arg for reverse urls
      - data_list_key: The key for the returned url list
      - model: The MongoEngine document to deal with
 
-    For *_fields, the arguments can be a string or a tuple, if a string
-    or if the 2nd arg of the tupe is None, it means both the json field
-    and the object attr have the same name which is either the string
-    or the 1st arg of the tuple. If 2nd arg of the tuple is not None,
-    it's the object attr name to use.
-
     """
-    methods = ['GET', 'POST']
+    methods = ['GET',]
     data_list_key = 'list'
-    required_fields = []
-    optional_fields = []
 
     def get_queryset(self):
         """
@@ -152,6 +140,28 @@ class APIListCreateView(MethodView, APIObjectFromJsonMixin):
                                                     **{self.view_arg_name: obj.id}))
         return jsonify(data)
 
+
+class APICreateView(MethodView, APIObjectFromJsonMixin):
+    """
+    Helper class to implement API create view
+    POST will create an object
+
+    You must subclass it and add the following attributes:
+     - required_fields: The required fields to POST
+     - optional_fields: The optional fields to POST
+     - view_name: the name of a view to generate reverse urls
+     - view_arg_name: the of the view arg for reverse urls
+     - model: The MongoEngine document to deal with
+
+    For *_fields, the arguments can be a string or a tuple, if a string
+    or if the 2nd arg of the tupe is None, it means both the json field
+    and the object attr have the same name which is either the string
+    or the 1st arg of the tuple. If 2nd arg of the tuple is not None,
+    it's the object attr name to use.
+
+    """
+    methods = ['POST',]
+
     def post(self):
         """
         This method creates an object from the post data
@@ -169,31 +179,47 @@ class APIListCreateView(MethodView, APIObjectFromJsonMixin):
                                     **{self.view_arg_name: obj.id}))
 
 
-class APIDetailView(MethodView, APIObjectFromJsonMixin):
+class APIListCreateView(APIListView, APICreateView):
     """
-    Helper class for implementing API detail view
-    You must subclass it and add the following attributes
-     - display_fields: The fields that will be returned
-     - required_fields: The required fields to PUT
-     - optional_fields: The optional fields to PUT
-     - model: The MongoEngine document to use
-     - view_name: the view name for reverse urls
-     - view_arg_name: the name of the view argument name for reverse urls
-
-    For *_fields, the arguments can be a string or a tuple, if a string
-    or if the 2nd arg of the tupe is None, it means both the json field
-    and the object attr have the same name which is either the string
-    or the 1st arg of the tuple. If 2nd arg of the tuple is not None,
-    it's the object attr name to use.
+    Helper class to build API list/create endpoints
+    This class combines APIListView and APICreateView
 
     """
-    methods = ['GET', 'PUT', 'DELETE']
+    methods = ['GET', 'POST']
 
+
+class APIModelViewMixin(object):
+    """
+    A simple Mixin to provide model object related methods
+
+    """
     def get_object(self, obj_id):
         """Returns the model object filtering by kwargs"""
         if not self.model:
             abort(404)
         return self.model.objects.get_or_404(id=obj_id)
+
+    def get_object_url(self, obj):
+        """
+        Returns the object URL based on view_name attr
+
+        """
+        return url_for(self.view_name, _external=True, **{self.view_arg_name: obj.id})
+
+
+class APIDetailView(MethodView, APIModelViewMixin):
+    """
+    Helper class for implementing API detail view
+    GET returns the object detailed info
+
+    You must subclass it and add the following attributes
+     - display_fields: The fields that will be returned
+     - model: The MongoEngine document to use
+     - view_name: the view name for reverse urls
+     - view_arg_name: the name of the view argument name for reverse urls
+
+    """
+    methods = ['GET',]
 
     def get_object_data(self, obj):
         """
@@ -209,13 +235,6 @@ class APIDetailView(MethodView, APIObjectFromJsonMixin):
                 data[k] = v
         return data
 
-    def get_object_url(self, obj):
-        """
-        Returns the object URL based on view_name attr
-
-        """
-        return url_for(self.view_name, _external=True, **{self.view_arg_name: obj.id})
-
     def get(self, **kwargs):
         """
         This method is the GET endpoint
@@ -227,6 +246,28 @@ class APIDetailView(MethodView, APIObjectFromJsonMixin):
         data = self.get_object_data(obj)
         data['url'] = self.get_object_url(obj)
         return jsonify(data)
+
+
+class APIUpdateView(MethodView, APIModelViewMixin, APIObjectFromJsonMixin):
+    """
+    Helper class providing a way to update objects
+    PUT will updated the object and redirect to it's url
+
+    You must subclass it and add the following attributes
+     - model: The MongoEngine document to use
+     - view_name: the view name for reverse urls
+     - view_arg_name: the name of the view argument name for reverse urls
+     - required_fields: The required fields to PUT
+     - optional_fields: The optional fields to PUT
+
+    For *_fields, the arguments can be a string or a tuple, if a string
+    or if the 2nd arg of the tupe is None, it means both the json field
+    and the object attr have the same name which is either the string
+    or the 1st arg of the tuple. If 2nd arg of the tuple is not None,
+    it's the object attr name to use.
+
+    """
+    methods = ['PUT',]
 
     def put(self, **kwargs):
         """
@@ -242,9 +283,21 @@ class APIDetailView(MethodView, APIObjectFromJsonMixin):
         for (k, v) in kw.iteritems():
             setattr(obj, k, v)
         obj.save()
-        return api_redirect(url_for(self.view_name, _external=True,
-                                    **{self.view_arg_name: obj.id}))
+        return api_redirect(self.get_object_url(obj))
 
+
+class APIDeleteView(MethodView, APIModelViewMixin):
+    """
+    Helper class providing a way to delete objects
+    DELETE will delete the object
+
+    You must subclass it and add the following attributes
+     - model: The MongoEngine document to use
+     - view_name: the view name for reverse urls
+     - view_arg_name: the name of the view argument name for reverse urls
+
+    """
+    method = ['DELETE',]
 
     def delete(self, **kwargs):
         """
@@ -255,3 +308,43 @@ class APIDetailView(MethodView, APIObjectFromJsonMixin):
         obj = self.get_object(obj_id)
         obj.delete()
         return jsonify({"status": "OK"})
+
+
+class APIDetailUpdateView(APIDetailView, APIUpdateView):
+    """
+    Helper class providing both GET and PUT methods for model related API
+    Combines APIDetailView and APIUpdateView classes
+
+    """
+    methods = ['GET', 'PUT']
+
+
+class APIDetailDeleteVIew(APIDetailView, APIDeleteView):
+    """
+    Helper class providing both GET and DELETE methods for model related APIs
+    Combines APIDetailView and APIDeleteView classes
+
+    """
+    methods = ['GET', 'DELETE']
+
+
+class APIUpdateDeleteView(APIUpdateView, APIDeleteView):
+    """
+    Helper class providing both PUT and DELETE methods for model related APIs
+    Combines APIDeleteView and APIUpdateView classes
+
+    """
+    methods = ['DELETE', 'PUT']
+
+
+class APIDetailUpdateDeleteView(APIDetailView, APIUpdateView, APIDetailView):
+    """
+    Helper class providing all model related endpoints:
+    GET shows the object detailed info
+    PUT updates the object
+    DELETE deletes the object
+
+    Combines APIDetailView, APIUpdateView, and APIDeleteView classes
+
+    """
+    methods = ['']
