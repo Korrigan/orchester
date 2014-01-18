@@ -5,9 +5,9 @@ URL prefix: /app
 """
 
 from flask import Blueprint
-from flask import url_for, jsonify
+from flask import url_for
 
-from orchester.api.views import APIDetailView, APIListCreateView
+from orchester.api.views import APIDetailUpdateDeleteView, APIListCreateView
 
 from orchester.master.models.application import Application
 
@@ -45,7 +45,7 @@ class AppIndexView(AppViewMixin, APIListCreateView):
     data_list_key = 'apps'
 
 
-class AppView(APIDetailView, AppViewMixin):
+class AppView(APIDetailUpdateDeleteView, AppViewMixin):
     """
     /app/<app_id>/ endpoint
     GET returns detailed info about application
@@ -64,6 +64,18 @@ class AppView(APIDetailView, AppViewMixin):
         'min_workers',
         'public_key',
     ]
+
+    def get_object_data(self, obj):
+        """
+        This method overloads get_object_data to add worker list by urls
+
+        """
+        data = super(AppView, self).get_object_data(obj)
+        data['workers'] = []
+        for w in obj.workers:
+            data['workers'].append(url_for('worker.wkr_detail', _external=True,
+                                           id=str(w.id)))
+        return data
 
 
 application.add_url_rule('/', 'index', AppIndexView.as_view('index'))

@@ -8,6 +8,7 @@ from flask import Blueprint
 
 from orchester.api import views
 
+from .application import application
 
 version = '0.0.1'
 index = Blueprint('index', __name__)
@@ -21,7 +22,6 @@ def index_index():
 
 def register(app):
     """Register all API modules"""
-    from .client import register as register_client
 
     app.register_blueprint(index)
-    register_client(app)
+    app.register_blueprint(application, url_prefix='/app')
