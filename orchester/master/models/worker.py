@@ -19,4 +19,13 @@ class Worker(db.Document, DisplayableModelMixin):
     """
     host = db.ReferenceField(Node)
     app = db.ReferenceField(Application)
-    worker_id = db.IntField(unique_with='host')
+    worker_id = db.StringField(unique_with='host')
+
+    def delete(self, *args, **kwargs):
+        """
+        Tell his node to delete the worker and then call the standard
+        method to delete reference in BDD
+
+        """
+        print "I'm worker %s and Ima be deleted on %s" % (self.worker_id, self.host)
+        return super(Worker, self).delete(*args, **kwargs)

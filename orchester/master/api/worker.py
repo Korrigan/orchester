@@ -41,7 +41,11 @@ class WkrDetailView(WorkerViewMixin, APIDetailDeleteView):
     DELETE deletes the worker
 
     """
-    pass
+    display_fields = [
+        ('id', 'cleaned_id'),
+#        'app',
+#        'host',
+    ]
 
 
 worker.add_url_rule('/', 'index', WkrIndexView.as_view('index'))

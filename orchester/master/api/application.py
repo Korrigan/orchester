@@ -75,9 +75,28 @@ class AppView(APIDetailUpdateDeleteView, AppViewMixin):
         data['workers'] = []
         for w in Worker.objects.filter(app=obj):
             data['workers'].append(url_for('worker.wkr_detail', _external=True,
-                                           id=str(w.id)))
+                                           id=w.cleaned_id))
         return data
 
 
+class AppDeployView(MethodView):
+    """
+    Handles a POST request with no data and deploy an application
+
+    """
+    methods = ['POST',]
+
+    def post(self, *args, **kwargs):
+        """
+        Deploy an application
+        This method takes custom overrides for the following attributes
+        (application will be updated):
+        - ...
+        - ...
+
+        """
+        pass
+
 application.add_url_rule('/', 'index', AppIndexView.as_view('index'))
 application.add_url_rule('/<app_id>', 'app_detail', AppView.as_view('app_detail'))
+application.add_url_rule('/<app_id>/deploy', AppDeployView.as_view('app_deploy'))

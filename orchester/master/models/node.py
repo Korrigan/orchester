@@ -31,8 +31,7 @@ class Node(db.Document):
             'extra': klass.get_extra_kwargs(app)
             }
         if app.code_tag:
-            data['code_tag'] = app.code_tag
-        ret = "" # From node API call
+            data['code_tag'] = app.code_tag 
+`       ret = '{id: "tachatte"}' # From node API call
         ret_data = json.decode(ret)
         app.workers.push(Worker(host=self, worker_id=ret_data['id']))
-

@@ -47,7 +47,8 @@ class Master(object):
         for i in range(0, app.min_workers):
             node = self.get_node()
             if not node:
-                pass #throw smth
+                print "No node available for deployment"
+                # throw smth
             node.deploy(app)
 
 master = Master()
