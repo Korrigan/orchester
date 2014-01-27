@@ -5,10 +5,12 @@ This module handles worker related models
 
 from orchester.master import db
 
+from . import DisplayableModelMixin
 from .node import Node
+from .application import Application
 
 
-class Worker(db.Document):
+class Worker(db.Document, DisplayableModelMixin):
     """
     The sole use case of this class (in mongo-related terms) is to be used in
     Application object.
@@ -16,4 +18,5 @@ class Worker(db.Document):
 
     """
     host = db.ReferenceField(Node)
+    app = db.ReferenceField(Application)
     worker_id = db.IntField(unique_with='host')

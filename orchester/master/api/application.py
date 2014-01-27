@@ -10,6 +10,7 @@ from flask import url_for
 from orchester.api.views import APIDetailUpdateDeleteView, APIListCreateView
 
 from orchester.master.models.application import Application
+from orchester.master.models.worker import Worker
 
 application = Blueprint('application', __name__)
 
@@ -72,7 +73,7 @@ class AppView(APIDetailUpdateDeleteView, AppViewMixin):
         """
         data = super(AppView, self).get_object_data(obj)
         data['workers'] = []
-        for w in obj.workers:
+        for w in Worker.objects.filter(app=obj):
             data['workers'].append(url_for('worker.wkr_detail', _external=True,
                                            id=str(w.id)))
         return data
