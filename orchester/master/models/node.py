@@ -21,6 +21,9 @@ class Node(db.Document, DisplayableModelMixin):
         This method deploys the instance of Application to the node
 
         """
+        from flask import json
+        from .worker import Worker
+
         plugin = 'dummy' # We should have a way to add a plugin selector
         klass = get_node_plugin_class(plugin)
         if not klass:
@@ -35,6 +38,6 @@ class Node(db.Document, DisplayableModelMixin):
         if app.code_tag:
             data['code_tag'] = app.code_tag 
         ret = '{ "id": "tachatte" }' # From node API call
-        ret_data = json.decode(ret)
+        ret_data = json.loads(ret)
         wkr = Worker(host=self, worker_id=ret_data['id'], app=app)
         wkr.save()
