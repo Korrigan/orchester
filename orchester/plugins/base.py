@@ -1,8 +1,9 @@
 """
 This module defines the base classes for orchester plugin implementations
-This acts as a reference for every plugin implemented
+This acts as a reference for every plugin implementation
 
 """
+
 
 class AbstractBasePlugin(object):
     """
@@ -40,6 +41,25 @@ class AbstractBasePlugin(object):
         if kls.version:
             return kls.version
         return 0
+
+    @classmethod
+    def get_extra_kwargs(kls, app):
+        """
+        This method returns the extra configuration kwargs needed to be sent to
+        the node for worker deployment.
+
+        It takes information from app wich is an instance of
+        orchester.models.application.Application
+
+        By default returns an empty dict, an useful implementation should returns a dict
+
+        Child class must implement all their required argument here
+
+        Node daemon will instanciate the plugin with these keywords
+        arguments if provided
+
+        """
+        return {}
 
 
 def get_class():
