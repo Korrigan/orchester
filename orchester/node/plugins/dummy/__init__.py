@@ -4,7 +4,7 @@ Basically does nothing
 
 """
 
-from orchester.plugin.dummy import DummyPlugin
+from orchester.plugins.dummy import DummyPlugin
 
 def get_class():
     """
