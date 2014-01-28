@@ -10,6 +10,7 @@ from orchester.api import views
 
 from .application import application
 from .worker import worker
+from .node import node
 
 
 version = '0.0.1'
@@ -24,7 +25,7 @@ def index_index():
 
 def register(app):
     """Register all API modules"""
-
     app.register_blueprint(index)
     app.register_blueprint(application, url_prefix='/app')
     app.register_blueprint(worker, url_prefix='/worker')
+    app.register_blueprint(node, url_prefix='/node')
