@@ -6,11 +6,14 @@ URL prefix: /app
 
 from flask import Blueprint
 from flask import url_for
+from flask.views import MethodView
 
-from orchester.api.views import APIDetailUpdateDeleteView, APIListCreateView
+from orchester.api.views import APIDetailUpdateDeleteView, APIListCreateView, APIModelViewMixin
+from orchester.api.views import api_redirect
 
 from orchester.master.models.application import Application
 from orchester.master.models.worker import Worker
+
 
 application = Blueprint('application', __name__)
 
@@ -79,7 +82,7 @@ class AppView(APIDetailUpdateDeleteView, AppViewMixin):
         return data
 
 
-class AppDeployView(MethodView):
+class AppDeployView(MethodView, APIModelViewMixin, AppViewMixin):
     """
     Handles a POST request with no data and deploy an application
 
@@ -91,12 +94,16 @@ class AppDeployView(MethodView):
         Deploy an application
         This method takes custom overrides for the following attributes
         (application will be updated):
-        - ...
-        - ...
+        - to be defined and implemented
 
         """
-        pass
+        from orchester.master import master
+
+        app = self.get_object(kwargs['app_id'])
+        master.deploy(app)
+        return api_redirect(self.get_object_url(app))
+
 
 application.add_url_rule('/', 'index', AppIndexView.as_view('index'))
 application.add_url_rule('/<app_id>', 'app_detail', AppView.as_view('app_detail'))
-application.add_url_rule('/<app_id>/deploy', AppDeployView.as_view('app_deploy'))
+application.add_url_rule('/<app_id>/deploy', 'app_deploy', AppDeployView.as_view('app_deploy'))
