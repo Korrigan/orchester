@@ -6,7 +6,6 @@ This module contain application related models
 from orchester.master import db
 
 from . import DisplayableModelMixin
-from .worker import Worker
 
 
 class Application(db.Document, DisplayableModelMixin):
@@ -21,7 +20,6 @@ class Application(db.Document, DisplayableModelMixin):
     min_workers = db.IntField()
     max_workers = db.IntField()
     env_vars = db.DictField()
-    workers = db.ListField(db.ReferenceField(Worker))
 
     @property
     def private_key(self):

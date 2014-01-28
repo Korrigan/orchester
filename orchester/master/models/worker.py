@@ -5,10 +5,12 @@ This module handles worker related models
 
 from orchester.master import db
 
+from . import DisplayableModelMixin
 from .node import Node
+from .application import Application
 
 
-class Worker(db.Document):
+class Worker(db.Document, DisplayableModelMixin):
     """
     The sole use case of this class (in mongo-related terms) is to be used in
     Application object.
@@ -16,4 +18,14 @@ class Worker(db.Document):
 
     """
     host = db.ReferenceField(Node)
-    worker_id = db.IntField(unique_with='host')
+    app = db.ReferenceField(Application)
+    worker_id = db.StringField(unique_with='host')
+
+    def delete(self, *args, **kwargs):
+        """
+        Tell his node to delete the worker and then call the standard
+        method to delete reference in BDD
+
+        """
+        print "I'm worker %s and Ima be deleted on %s" % (self.worker_id, self.host)
+        return super(Worker, self).delete(*args, **kwargs)

@@ -312,7 +312,7 @@ class APIDetailUpdateView(APIDetailView, APIUpdateView):
     methods = ['GET', 'PUT']
 
 
-class APIDetailDeleteVIew(APIDetailView, APIDeleteView):
+class APIDetailDeleteView(APIDetailView, APIDeleteView):
     """
     Helper class providing both GET and DELETE methods for model related APIs
     Combines APIDetailView and APIDeleteView classes

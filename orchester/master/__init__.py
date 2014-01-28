@@ -37,6 +37,8 @@ class Master(object):
         Returns a host object depending of load metrics
 
         """
+        from .models.node import Node
+
         return Node.objects.first()
 
     def deploy(self, app):
@@ -47,7 +49,8 @@ class Master(object):
         for i in range(0, app.min_workers):
             node = self.get_node()
             if not node:
-                pass #throw smth
+                print "No node available for deployment"
+                # throw smth
             node.deploy(app)
 
 master = Master()
