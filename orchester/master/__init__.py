@@ -37,6 +37,8 @@ class Master(object):
         Returns a host object depending of load metrics
 
         """
+        from .models.node import Node
+
         return Node.objects.first()
 
     def deploy(self, app):
