@@ -27,5 +27,14 @@ class Worker(db.Document, DisplayableModelMixin):
         method to delete reference in BDD
 
         """
-        print "I'm worker %s and Ima be deleted on %s" % (self.worker_id, self.host)
+        self.host.stop_worker(self)
         return super(Worker, self).delete(*args, **kwargs)
+
+    @classmethod
+    def bulk_delete(kls, *args, **kwargs):
+        """
+        Deletes all workers which match *args and **kwargs filters
+
+        """
+        for w in kls.objects.filter(*args, **kwargs):
+            w.delete()

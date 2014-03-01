@@ -20,5 +20,6 @@ setup(name='orchester',
       install_requires=[
           'flask',
           'flask-mongoengine',
+          'requests',
       ],
   )

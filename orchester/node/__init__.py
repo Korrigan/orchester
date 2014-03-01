@@ -7,11 +7,13 @@ from flask import Flask
 
 from .api import index
 from .api.worker import worker
+from .api.monitoring import monitoring
 
 
 app = Flask('orchester.node')
 app.register_blueprint(index)
 app.register_blueprint(worker, url_prefix='/worker')
+app.register_blueprint(monitoring, url_prefix='/monitoring')
 
 class Node(object):
     """

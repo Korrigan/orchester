@@ -31,6 +31,16 @@ class Application(db.Document, DisplayableModelMixin):
         """Read and returns the private key of the app"""
         return "tata"
 
+    def delete(self, *args, **kwargs):
+        """
+        Deletes the application and all related services
+
+        """
+        from .worker import Worker
+
+        Worker.bulk_delete(app=self)
+        return super(Application, self).delete(*args, **kwargs)
+
     def gen_rsa_keypair(self):
         """
         This method generate a unique keypair for the application
