@@ -68,4 +68,4 @@ class Node(db.Document, DisplayableModelMixin):
         """
         ret = requests.delete(self.url + '/worker/' + worker.worker_id)
         if not ret.status_code == 200:
-            print "Deletion failed: %s" ret.text
+            print "Deletion failed: %s" % ret.text
