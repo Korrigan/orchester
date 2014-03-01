@@ -6,7 +6,6 @@ This module contain application related models
 from orchester.master import db
 
 from . import DisplayableModelMixin
-from .worker import Worker
 
 
 class Application(db.Document, DisplayableModelMixin):
@@ -21,7 +20,6 @@ class Application(db.Document, DisplayableModelMixin):
     min_workers = db.IntField()
     max_workers = db.IntField()
     env_vars = db.DictField()
-    workers = db.ListField(db.ReferenceField(Worker))
 
     @property
     def private_key(self):
@@ -32,6 +30,16 @@ class Application(db.Document, DisplayableModelMixin):
     def public_key(self):
         """Read and returns the private key of the app"""
         return "tata"
+
+    def delete(self, *args, **kwargs):
+        """
+        Deletes the application and all related services
+
+        """
+        from .worker import Worker
+
+        Worker.bulk_delete(app=self)
+        return super(Application, self).delete(*args, **kwargs)
 
     def gen_rsa_keypair(self):
         """
