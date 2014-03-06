@@ -42,17 +42,17 @@ class MonitoringWorkerView(MethodView):
 
     def get(self, wkr_id):
         """Returns worker <wkr_id> monitoring data"""
+        metrics = [
+            {'name': "mem_free",
+             'value': random.randrange(10, 300),
+             'unit': "MB"},
+            {'name': "cpu_usage",
+             'value': random.randrange(0, 100),
+             'unit': "%"},
+            ]
         data = {
-            'id': wkr_id,
-            'url': url_for('worker.worker_get', _external=True, id=wkr_id),
-            'metrics': [
-                {'name': "mem_free",
-                 'value': random.randrange(10, 300),
-                 'unit': "MB"},
-                {'name': "cpu_usage",
-                 'value': random.randrange(0, 100),
-                 'unit': "%"},
-                ]
+            'metrics': metrics,
+            'count': len(metrics)
             }
         return jsonify(data)
 
