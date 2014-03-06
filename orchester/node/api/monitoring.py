@@ -10,7 +10,6 @@ from flask import Blueprint
 from flask import url_for, jsonify
 from flask.views import MethodView
 
-
 monitoring = Blueprint('monitoring', __name__)
 
 
@@ -24,20 +23,11 @@ class MonitoringView(MethodView):
 
     def get(self):
         """Returns monitoring data"""
+        from orchester.node import node
+        metrics = node.get_metrics()
         data = {
-            'id': "1234-tofix",
-            'url': "http://blablabla/1234-tofix",
-            'metrics': [
-                {'name': "mem_free",
-                 'value': random.randrange(500, 1024),
-                 'unit': "MB"},
-                {'name': "cpu_usage",
-                 'value': random.randrange(0, 100),
-                 'unit': "%"},
-                {'name': "processes",
-                 'value': random.randrange(50, 200),
-                 'unit': ""},
-                ]
+            'metrics': metrics,
+            'count': len(metrics)
             }
         return jsonify(data)
 

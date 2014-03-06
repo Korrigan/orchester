@@ -26,4 +26,9 @@ class Node(object):
         import socket
         self.hostname = socket.gethostname()
 
+    def get_metrics(self):
+        """Returns metrics collected from .monitoring.get_global_metrics()"""
+        from .monitoring import get_global_metrics
+        return get_global_metrics()
+
 node = Node()
