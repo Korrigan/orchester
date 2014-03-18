@@ -21,5 +21,6 @@ setup(name='orchester',
           'flask',
           'flask-mongoengine',
           'requests',
+          'psutil',
       ],
   )
