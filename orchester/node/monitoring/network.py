@@ -18,8 +18,9 @@ def get_global_network_usage():
          'value': net_io.bytes_sent,
          'unit': 'bytes'},
         {'name': 'net_in_errors',
-         'value': net_io.errin},
+         'value': net_io.errin,
+         'unit': ''},
         {'name': 'net_out_errors',
-         'value': net_io.errout
-         },
+         'value': net_io.errout,
+         'unit': ''},
         ]
