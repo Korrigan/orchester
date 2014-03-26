@@ -22,7 +22,7 @@ class ReleaseManager(object):
         """Return a list of releases present in self.path"""
         if not self.path:
             return []
-        return sorted(run("ls -x %s" % self.path).split())
+        return sorted(run("ls -x %s" % self.path, quiet=True).split())
 
     def latest(self):
         """Return the latest release"""
@@ -47,7 +47,7 @@ class ReleaseManager(object):
            env.git_branch
          - Setting the release metadata into the deploy.json file
         
-        It returns the full path of the new release
+        It returns the name of the new release
 
         """
         import json
