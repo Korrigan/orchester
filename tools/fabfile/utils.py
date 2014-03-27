@@ -4,6 +4,8 @@ Utility functions and stuff useful for each component
 """
 
 import os
+import StringIO
+import json
 
 from fabric.api import *
 from fabric.colors import blue
@@ -11,6 +13,7 @@ import fabtools
 
 from . import defaults
 from .releases import ReleaseManager
+
 
 def load_environ_settings(settings, environ):
     """
@@ -46,6 +49,7 @@ def load_environ_settings(settings, environ):
 def setup():
     """
     Setup the virtualenv and the directory structures
+    Also generate the gunicorn configuration used by supervisor
 
     """
     print blue("Creating virtualenv in %s" % env.virtualenv)
@@ -53,6 +57,8 @@ def setup():
     print blue("Making directories")
     fabtools.require.files.directory(env.app_path)
     fabtools.require.files.directory(env.release_path)
+    fabtools.require.files.directory(env.shared_path)
+    fabtools.require.files.directory(env.log_path)
 
 
 def create_release():
@@ -61,7 +67,10 @@ def create_release():
 
     """
     print blue("Cloning repository %s [branch %s]" % (env.repository, env.git_branch))
-    return env.releases.create()
+    release = env.releases.create()
+    env.new_release_path = os.path.join(env.release_path, str(release))
+    return release
+
 
 def commit_release():
     """
@@ -71,14 +80,12 @@ def commit_release():
     print blue("Deploying new release")
     env.releases.commit()
 
+
 def list_releases():
     """
     Lists all the releases and who deployed it
 
     """
-    import StringIO
-    import json
-
     print blue("Releases list")
     for r in env.releases.list():
         mdata = {
@@ -97,3 +104,36 @@ def list_releases():
                 'user': mdata['user'],
                 'host': mdata['host'],
             }
+
+
+def install_requirements():
+    """
+    Installs required python packages with pip in the virtualenv
+
+    """
+    with fabtools.python.virtualenv(env.virtualenv):
+        run("pip install -r %s" % os.path.join(env.new_release_path, 'requirements.txt'))
+
+
+def update_configuration():
+    """
+    Regenerate gunicorn configuration from the template
+    Abort if configuration is not valid
+
+    """
+    new_etc_path = env.etc_path.replace(env.current_path, env.new_release_path)
+    gunicorn_tpl_fp = os.path.join(new_etc_path, 'gunicorn.%s.conf' % env.environ)
+    gunicorn_tpl_conf = StringIO.StringIO()
+    gunicorn_conf_fp = os.path.join(new_etc_path, 'gunicorn.conf')
+    if get(gunicorn_tpl_fp, gunicorn_tpl_conf).failed:
+        abort("Cannot open %s" % gunicorn_tpl_fp)
+    fabtools.require.files.template_file(
+        path = gunicorn_conf_fp,
+        template_contents = gunicorn_tpl_conf.read(),
+        context={
+            'app_path': env.current_path,
+            'access_log': os.path.join(env.log_path, 'access.log'),
+            'error_log': os.path.join(env.log_path, 'errror.log'),
+        })
+    if run('gunicorn --check-config -c %s' % gunicorn_conf_fp).failed:
+        abort("Invalid gunicorn configuration")

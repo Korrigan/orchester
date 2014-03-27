@@ -14,13 +14,18 @@ from . import utils
 
 project = 'orchester-master'
 app_path = os.path.join(defaults.base_app_dir, project)
+shared_path = os.path.join(app_path, 'shared')
+current_path = os.path.join(app_path, 'current')
 
 settings = {
     'default': {
         'virtualenv': os.path.join(defaults.base_venv_dir, project),
         'app_path': app_path,
         'release_path': os.path.join(app_path, 'release'),
-        'current_path': os.path.join(app_path, 'current'),
+        'current_path': current_path,
+        'etc_path': os.path.join(current_path, 'etc', project),
+        'shared_path': shared_path,
+        'log_path': os.path.join(shared_path, 'log'),
     },
     'staging': {},
     'prod': 'staging',
@@ -47,6 +52,8 @@ def deploy(environ=defaults.environ):
     defaults.check_environ(environ)
     utils.load_environ_settings(settings, environ)
     utils.create_release()
+    utils.install_requirements()
+    utils.update_configuration()
     utils.commit_release()
     print blue("Restarting services")
 
