@@ -2,13 +2,13 @@
 
 import sys
 
-from orchester.master import app, setup
+from orchester.master import setup
 
 
 if __name__ == '__main__':
     host = 'localhost'
     port = 5000
-    setup()
+    app = setup()
     if len(sys.argv) >= 2:
         host = sys.argv[1]
     if len(sys.argv) >= 3:

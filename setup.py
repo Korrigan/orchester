@@ -5,6 +5,10 @@ def readme():
     with open('README.rst') as r:
         return r.read()
 
+def requirements():
+    """Fetch requirements from requirements.txt"""
+    with open('requirements.txt') as req:
+        return req.read().splitlines()
 
 setup(name='orchester',
       version='0.1',
@@ -17,10 +21,5 @@ setup(name='orchester',
       ],
       packages=['orchester'],
       test_suite='orchester.tests',
-      install_requires=[
-          'flask',
-          'flask-mongoengine',
-          'requests',
-          'psutil',
-      ],
+      install_requires=requirements(),
   )
