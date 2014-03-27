@@ -134,6 +134,7 @@ def update_configuration():
             'app_path': env.current_path,
             'access_log': os.path.join(env.log_path, 'access.log'),
             'error_log': os.path.join(env.log_path, 'errror.log'),
+            'pid_file': env.pid_file,
         })
     gunicorn_tpl_conf.close()
     with cd(env.new_release_path):
