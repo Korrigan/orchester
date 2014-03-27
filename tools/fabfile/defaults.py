@@ -9,7 +9,7 @@ environ = "staging"
 available_environs = ["staging", "prod"]
 
 # Git
-git_repo = "https://github.com/orchester-io/orchester.git"
+git_repo = "https://github.com/Korrigan/orchester.git"
 git_branch = {
     'staging': 'master',
     'prod': 'master',
