@@ -111,6 +111,7 @@ def install_requirements():
     Installs required python packages with pip in the virtualenv
 
     """
+    print blue("Installing requirements")
     with fabtools.python.virtualenv(env.virtualenv):
         run("pip install -r %s" % os.path.join(env.new_release_path, 'requirements.txt'))
 
@@ -118,9 +119,9 @@ def install_requirements():
 def update_configuration():
     """
     Regenerate gunicorn configuration from the template
-    Abort if configuration is not valid
 
     """
+    print blue("Updating configuration")
     new_etc_path = env.etc_path.replace(env.current_path, env.new_release_path)
     gunicorn_tpl_fp = os.path.join(new_etc_path, 'gunicorn.%s.conf' % env.environ)
     gunicorn_tpl_conf = StringIO.StringIO()
@@ -137,5 +138,6 @@ def update_configuration():
             'pid_file': env.pid_file,
         })
     gunicorn_tpl_conf.close()
-    with cd(env.new_release_path):
-        run('gunicorn --check-config -c %s "%s"' % (gunicorn_conf_fp, env.gunicorn_app))
+    with path(os.path.join(env.virtualenv, 'bin'), behavior='replace'):
+        with cd(env.new_release_path):
+            run('gunicorn --check-config -c %s "%s"' % (gunicorn_conf_fp, env.gunicorn_app))
