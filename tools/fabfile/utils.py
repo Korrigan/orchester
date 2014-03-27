@@ -129,11 +129,12 @@ def update_configuration():
         abort("Cannot open %s" % gunicorn_tpl_fp)
     fabtools.require.files.template_file(
         path = gunicorn_conf_fp,
-        template_contents = gunicorn_tpl_conf.read(),
+        template_contents = gunicorn_tpl_conf.getvalue(),
         context={
             'app_path': env.current_path,
             'access_log': os.path.join(env.log_path, 'access.log'),
             'error_log': os.path.join(env.log_path, 'errror.log'),
         })
-    if run('gunicorn --check-config -c %s' % gunicorn_conf_fp).failed:
-        abort("Invalid gunicorn configuration")
+    gunicorn_tpl_conf.close()
+    with cd(env.new_release_path):
+        run('gunicorn --check-config -c %s "%s"' % (gunicorn_conf_fp, env.gunicorn_app))
