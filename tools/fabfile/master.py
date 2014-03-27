@@ -26,6 +26,7 @@ settings = {
         'etc_path': os.path.join(current_path, 'etc', project),
         'shared_path': shared_path,
         'log_path': os.path.join(shared_path, 'log'),
+        'gunicorn_app': 'orchester.master:setup()'
     },
     'staging': {},
     'prod': 'staging',
