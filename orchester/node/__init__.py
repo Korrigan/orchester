@@ -11,9 +11,6 @@ from .api.monitoring import monitoring
 
 
 app = Flask('orchester.node')
-app.register_blueprint(index)
-app.register_blueprint(worker, url_prefix='/worker')
-app.register_blueprint(monitoring, url_prefix='/monitoring')
 
 class Node(object):
     """
@@ -32,3 +29,9 @@ class Node(object):
         return get_global_metrics()
 
 node = Node()
+
+def setup():
+    app.register_blueprint(index)
+    app.register_blueprint(worker, url_prefix='/worker')
+    app.register_blueprint(monitoring, url_prefix='/monitoring')
+    return app

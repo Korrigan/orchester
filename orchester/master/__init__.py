@@ -23,6 +23,7 @@ def setup(db_name='orchester'):
     }
     db.init_app(app)
     register(app)
+    return app
 
 
 class Master(object):
