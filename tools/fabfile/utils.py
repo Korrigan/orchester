@@ -55,6 +55,8 @@ def setup():
     print blue("Trying to stop services")
     with warn_only():
         run("supervisorctl stop %s" % env.project)
+    print blue("Trying to remove symlink")
+    run("rm -vf %s" % env.current_path)
     print blue("Creating virtualenv in %s" % env.virtualenv)
     run("virtualenv --clear %s" % env.virtualenv)
     print blue("Making directories")
@@ -163,6 +165,15 @@ def update_gunicorn_configuration(base_path):
         'pid_file': env.pid_file,
     }
     def _check():
+        """
+        Check the config file inside the virtualenv
+
+        Since it won't work the first deploy because there is no previous
+        release available, we skip it
+
+        """
+        if not fabtools.files.is_link(env.current_path):
+            return
         with path(os.path.join(env.virtualenv, 'bin'), behavior='replace'):
             with cd(env.new_release_path):
                 run('gunicorn --check-config -c %s "%s"' % (gunicorn_conf_fp, env.gunicorn_app))
