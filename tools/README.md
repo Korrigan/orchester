@@ -11,11 +11,11 @@ For both node and master, you need a sshable box with the following:
 - A user 'orchester' with a homedir in /home/orchester
 - A group 'supervisor' (orchester must be member of this group)
 - Supervisord properly configured to allow supervisor group membres to use
-  supervisorctl
+  supervisorctl (chown root:supervisor and chmod 770 on /var/run/supervisor.sock)
 
 
-You must have to links (no need to create a valid directory structure, deploy
-scripts will take care of it):
+You must have 2 symlinks (no need to create a valid directory structure, deploy
+scripts will take care of it) for orchester config:
 
  - `ln -fs /home/orchester/orchester.io/orchester-master/current/etc/orchester-master/supervisor.conf /etc/supervisor/conf.d/orchester-master.conf`
  - `ln -fs /home/orchester/orchester.io/orchester-node/current/etc/orchester-node/supervisor.conf /etc/supervisor/conf.d/orchester-node.conf`
@@ -28,6 +28,10 @@ You must install the following python packages on your local host:
  - `pip install fabric`
  - `pip install fabtools`
 
+Or simpler:
+
+`pip install -r requirements.txt`
+
 
 Deployment
 ----------
@@ -38,11 +42,11 @@ Fabric usage in our case is the following:
 
 With:
 
-- <host>: The target host
-- <ssh_key>: Path to an allowed private key for the user 'orchester' on <host>
-- <module>: The module to deploy ('master' or 'node')
-- <environment>: The environment to use ('staging' or 'prod')
-- <command>: See below
+- `<host>`: The target host
+- `<ssh_key>`: Path to an allowed private key for the user 'orchester' on <host>
+- `<module>`: The module to deploy ('master' or 'node')
+- `<environment>`: The environment to use ('staging' or 'prod')
+- `<command>`: See below
 
 
 ### Deploying the master
@@ -76,7 +80,7 @@ It is possible to revert to a previous deployment with the rollback command.
 
 `fab -H <host> -i <ssh_key> master.rollback:<release>`
 
-<release> is optional and may specify the release id you want to rollback
+`<release>` is optional and may specify the release id you want to rollback
 
 
 You can list releases and their metadata with:
