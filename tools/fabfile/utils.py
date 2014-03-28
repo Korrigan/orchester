@@ -52,6 +52,9 @@ def setup():
     Also generate the gunicorn configuration used by supervisor
 
     """
+    print blue("Trying to stop services")
+    with warn_only():
+        run("supervisorctl stop %s" % env.project)
     print blue("Creating virtualenv in %s" % env.virtualenv)
     run("virtualenv --clear %s" % env.virtualenv)
     print blue("Making directories")
@@ -114,6 +117,16 @@ def install_requirements():
     print blue("Installing requirements")
     with fabtools.python.virtualenv(env.virtualenv):
         run("pip install -r %s" % os.path.join(env.new_release_path, 'requirements.txt'))
+
+def run_tests():
+    """
+    Runs the test suite inside the virtualenv
+
+    """
+    print blue("Running tests suites")
+    with fabtools.python.virtualenv(env.virtualenv):
+        with cd(env.new_release_path):
+            run("python -m unittest discover -s %s -p '*.py' -v" % env.tests_package)
 
 
 def generate_config_file(tpl_path, dst_path, tpl_context=None, check_config=None):
@@ -182,3 +195,15 @@ def update_configuration():
     new_etc_path = env.etc_path.replace(env.current_path, env.new_release_path)
     update_gunicorn_configuration(new_etc_path)
     update_supervisor_configuration(new_etc_path)
+
+
+def restart_services():
+    """
+    Reload services:
+     - supervisor (reload config)
+     - gunicorn (restart)
+
+    """
+    print blue("Reloading/restarting services")
+    run("supervisorctl reload")
+    run("supervisorctl restart %s" % env.project)

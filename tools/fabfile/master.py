@@ -27,6 +27,7 @@ settings = {
         'etc_path': os.path.join(current_path, 'etc', project),
         'shared_path': shared_path,
         'log_path': os.path.join(shared_path, 'log'),
+        'tests_package': 'orchester.tests.master',
         'pid_file': os.path.join(shared_path, project + ".pid"),
         'gunicorn_app': 'orchester.master:setup()'
     },
@@ -56,8 +57,10 @@ def deploy(environ=defaults.environ):
     utils.load_environ_settings(settings, environ)
     utils.create_release()
     utils.install_requirements()
+    utils.run_tests()
     utils.update_configuration()
     utils.commit_release()
+    utils.restart_services()
     print blue("Restarting services")
 
 
