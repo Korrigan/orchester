@@ -19,8 +19,7 @@ class MasterAPITestCase(unittest.TestCase):
     database = 'orchester_test'
 
     def setUp(self):
-        master.setup(db_name=self.database)
-        self.app = master.app.test_client()
+        self.app = master.setup(db_name=self.database).test_client()
     
     def tearDown(self):
         from pymongo import MongoClient
