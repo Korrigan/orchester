@@ -5,8 +5,6 @@ Fabric module to interact with orchester.master component
 import os
 
 from fabric.api import *
-from fabric.colors import blue
-import fabtools
 
 from . import defaults
 from . import utils 
@@ -61,7 +59,6 @@ def deploy(environ=defaults.environ):
     utils.update_configuration()
     utils.commit_release()
     utils.restart_services()
-    print blue("Restarting services")
 
 
 @task
