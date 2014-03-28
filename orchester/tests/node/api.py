@@ -18,7 +18,7 @@ class NodeAPITestCase(unittest.TestCase):
     """
 
     def setUp(self):
-        self.app = node.app.test_client()
+        self.app = node.setup().test_client()
 
 
 class IndexTestCase(NodeAPITestCase):
