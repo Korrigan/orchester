@@ -19,6 +19,7 @@ current_path = os.path.join(app_path, 'current')
 
 settings = {
     'default': {
+        'project': project,
         'virtualenv': os.path.join(defaults.base_venv_dir, project),
         'app_path': app_path,
         'release_path': os.path.join(app_path, 'release'),
