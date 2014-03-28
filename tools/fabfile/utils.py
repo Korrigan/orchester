@@ -162,12 +162,13 @@ def update_supervisor_configuration(base_path):
 
     """
     supervisor_tpl_fp = os.path.join(base_path, 'supervisor.%s.conf' % env.environ)
-    supervisor_conf_fp = '/etc/supervisor/conf.d/%s' % env.project
+    supervisor_conf_fp = os.path.join(base_path, 'supervisor.conf')
     supervisor_context = {
         'gunicorn_conf': os.path.join(base_path, 'gunicorn.conf'),
         'virtualenv': env.virtualenv,
         'user': env.user,
         'log_file': os.path.join(env.log_path, 'supervisor.log'),
+        'gunicorn_app': env.gunicorn_app,
     }
     generate_config_file(supervisor_tpl_fp, supervisor_conf_fp, supervisor_context)
 
@@ -180,3 +181,4 @@ def update_configuration():
     print blue("Updating configuration")
     new_etc_path = env.etc_path.replace(env.current_path, env.new_release_path)
     update_gunicorn_configuration(new_etc_path)
+    update_supervisor_configuration(new_etc_path)
