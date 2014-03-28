@@ -116,6 +116,62 @@ def install_requirements():
         run("pip install -r %s" % os.path.join(env.new_release_path, 'requirements.txt'))
 
 
+def generate_config_file(tpl_path, dst_path, tpl_context=None, check_config=None):
+    """
+    Generates a config file by using template `tpl_path` and `context` and put
+    it under `path`
+
+    If `check_config` is a callable, this function will call it to check the
+    configuration
+
+    """
+    contents = StringIO.StringIO()
+    if get(tpl_path, contents).failed:
+        abort("Cannot open %s" % tpl_path)
+    fabtools.require.files.template_file(path=dst_path,
+                                         template_contents=contents.getvalue(),
+                                         context=tpl_context)
+    contents.close()
+    if callable(check_config):
+        check_config()
+
+
+def update_gunicorn_configuration(base_path):
+    """
+    Updates and check the gunicorn config
+
+    """
+    gunicorn_tpl_fp = os.path.join(base_path, 'gunicorn.%s.conf' % env.environ)
+    gunicorn_conf_fp = os.path.join(base_path, 'gunicorn.conf')
+    gunicorn_context = {
+        'app_path': env.current_path,
+        'access_log': os.path.join(env.log_path, 'access.log'),
+        'error_log': os.path.join(env.log_path, 'errror.log'),
+        'pid_file': env.pid_file,
+    }
+    def _check():
+        with path(os.path.join(env.virtualenv, 'bin'), behavior='replace'):
+            with cd(env.new_release_path):
+                run('gunicorn --check-config -c %s "%s"' % (gunicorn_conf_fp, env.gunicorn_app))
+    generate_config_file(gunicorn_tpl_fp, gunicorn_conf_fp, gunicorn_context, _check)
+
+
+def update_supervisor_configuration(base_path):
+    """
+    Updates supervisor config
+
+    """
+    supervisor_tpl_fp = os.path.join(base_path, 'supervisor.%s.conf' % env.environ)
+    supervisor_conf_fp = '/etc/supervisor/conf.d/%s' % env.project
+    supervisor_context = {
+        'gunicorn_conf': os.path.join(base_path, 'gunicorn.conf'),
+        'virtualenv': env.virtualenv,
+        'user': env.user,
+        'log_file': os.path.join(env.log_path, 'supervisor.log'),
+    }
+    generate_config_file(supervisor_tpl_fp, supervisor_conf_fp, supervisor_context)
+
+
 def update_configuration():
     """
     Regenerate gunicorn configuration from the template
@@ -123,21 +179,4 @@ def update_configuration():
     """
     print blue("Updating configuration")
     new_etc_path = env.etc_path.replace(env.current_path, env.new_release_path)
-    gunicorn_tpl_fp = os.path.join(new_etc_path, 'gunicorn.%s.conf' % env.environ)
-    gunicorn_tpl_conf = StringIO.StringIO()
-    gunicorn_conf_fp = os.path.join(new_etc_path, 'gunicorn.conf')
-    if get(gunicorn_tpl_fp, gunicorn_tpl_conf).failed:
-        abort("Cannot open %s" % gunicorn_tpl_fp)
-    fabtools.require.files.template_file(
-        path = gunicorn_conf_fp,
-        template_contents = gunicorn_tpl_conf.getvalue(),
-        context={
-            'app_path': env.current_path,
-            'access_log': os.path.join(env.log_path, 'access.log'),
-            'error_log': os.path.join(env.log_path, 'errror.log'),
-            'pid_file': env.pid_file,
-        })
-    gunicorn_tpl_conf.close()
-    with path(os.path.join(env.virtualenv, 'bin'), behavior='replace'):
-        with cd(env.new_release_path):
-            run('gunicorn --check-config -c %s "%s"' % (gunicorn_conf_fp, env.gunicorn_app))
+    update_gunicorn_configuration(new_etc_path)
