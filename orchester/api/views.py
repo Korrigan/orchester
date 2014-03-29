@@ -129,13 +129,11 @@ class APIModelViewMixin(object):
         for (k, v) in data.iteritems():
             (key, obj_key) = check_field_key(k, allowed_fields)
             if not key:
-                print "invalid field %s" % k
                 abort(400)
             kw[obj_key] = v
         for k in self.required_fields:
             (key, obj_key) = get_field_keys(k)
             if not obj_key in kw:
-                print "missing field %s" % k
                 abort(400)
         return kw
 
