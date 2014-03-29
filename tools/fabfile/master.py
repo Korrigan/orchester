@@ -63,20 +63,22 @@ def deploy(environ=defaults.environ):
 
 @task
 def releases(environ=defaults.environ):
+    """
+    Lists releases and their metadata
+
+    """
     defaults.check_environ(environ)
     utils.load_environ_settings(settings, environ)
     utils.list_releases()
 
 
 @task
-def rollback(environ=defaults.environ,release=None):
+def rollback(release=None):
     """
-    Rollback to release or the previous release
+    Rollback to `release` or the previous release if release is None
 
     """
-    defaults.check_environ(environ)
-    utils.load_environ_settings(settings, environ)
-    if release:
-        env.releases.set_current(release)
-    else:
-        env.releases.rollback()
+    defaults.check_environ(defaults.environ)
+    utils.load_environ_settings(settings, defaults.environ)
+    utils.rollback_release(release)
+    utils.restart_services()

@@ -24,6 +24,15 @@ class ReleaseManager(object):
             return []
         return sorted(run("ls -x %s" % self.path, quiet=True).split())
 
+    def current(self):
+        """Returns the current release if there is one"""
+        with warn_only():
+            out = run("stat -c %%N %s" % env.current_path)
+            if out.succeeded:
+                return out.split()[-1].strip("`'").split('/')[-1]
+            else:
+                return None
+
     def latest(self):
         """Return the latest release"""
         releases = self.list()
@@ -60,7 +69,8 @@ class ReleaseManager(object):
         metadata = {
             'timestamp': now,
             'user': env.local_user,
-            'host': platform.node()
+            'host': platform.node(),
+            'environ': env.environ,
             }
         fabtools.require.files.file(path=os.path.join(path, 'deploy.json'),
                                     contents=json.dumps(metadata, indent=4))
