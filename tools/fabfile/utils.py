@@ -8,7 +8,7 @@ import StringIO
 import json
 
 from fabric.api import *
-from fabric.colors import blue
+from fabric.colors import blue, yellow
 import fabtools
 
 from . import defaults
@@ -85,6 +85,15 @@ def commit_release():
     print blue("Deploying new release")
     env.releases.commit()
 
+def rollback_release(release):
+    """
+    Rollback to release `release`
+
+    """
+    if release:
+        env.releases.set_current(release)
+    else:
+        env.releases.rollback()
 
 def list_releases():
     """
@@ -92,6 +101,8 @@ def list_releases():
 
     """
     print blue("Releases list")
+    cur = env.releases.current()
+    print "Current release: %s" % cur
     for r in env.releases.list():
         mdata = {
             'user': '<somebody>',
@@ -102,12 +113,18 @@ def list_releases():
         raw = StringIO.StringIO()
         with quiet():
             if get(path, raw).succeeded:
-                mdata = json.loads(raw.getvalue())
+                mdata.update(json.loads(raw.getvalue()))
                 raw.close()
-            print " - %(release)s: deployed by %(user)s@%(host)s" % {
+            if r == cur:
+                is_current = yellow(" (current)")
+            else:
+                is_current = ""
+            print " - %(release)s [%(environ)s]: deployed by %(user)s@%(host)s%(is_current)s" % {
                 'release': r,
+                'environ': mdata['environ'],
                 'user': mdata['user'],
                 'host': mdata['host'],
+                'is_current': is_current,
             }
 
 
