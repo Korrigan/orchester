@@ -12,10 +12,10 @@ For both node and master, you need a sshable box with the following:
 - A group 'supervisor' (orchester must be member of this group)
 - Supervisord properly configured to allow supervisor group membres to use
   supervisorctl (chown root:supervisor and chmod 770 on /var/run/supervisor.sock)
+- Mongodb installed and running
 
-
-You must have 2 symlinks (no need to create a valid directory structure, deploy
-scripts will take care of it) for orchester config:
+You must also have 2 symlinks (no need to create a valid directory structure,
+deploy scripts will take care of it) for orchester config:
 
  - `ln -fs /home/orchester/orchester.io/orchester-master/current/etc/orchester-master/supervisor.conf /etc/supervisor/conf.d/orchester-master.conf`
  - `ln -fs /home/orchester/orchester.io/orchester-node/current/etc/orchester-node/supervisor.conf /etc/supervisor/conf.d/orchester-node.conf`
